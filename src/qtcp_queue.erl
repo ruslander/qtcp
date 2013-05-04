@@ -1,12 +1,11 @@
 -module(qtcp_queue).
 -behaviour(gen_server).
--define(SERVER, ?MODULE).
 
 %% ------------------------------------------------------------------
 %% API Function Exports
 %% ------------------------------------------------------------------
 
--export([start_link/0, inspect/0, enqueue/1, dequeue/0, new/0]).
+-export([start_link/1, inspect/1, enqueue/2, dequeue/1, new/0]).
 
 %% ------------------------------------------------------------------
 %% gen_server Function Exports
@@ -19,20 +18,23 @@
 %% API Function Definitions
 %% ------------------------------------------------------------------
 
-start_link() ->
-    gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
+
+start_link(Name) ->
+    gen_server:start_link({local, Name}, ?MODULE, [], []).
 
 new() ->
-	start_link().
+    Name = list_to_atom(erlang:ref_to_list(make_ref())),
+    start_link(Name),
+    Name.
 
-inspect() ->
-    gen_server:cast(?MODULE, {inspect}).
+inspect(Name) ->
+    gen_server:cast(Name, {inspect}).
 
-enqueue(Item) ->
-    gen_server:cast(?MODULE, {enqueue, Item}).
+enqueue(Name, Item) ->
+    gen_server:cast(Name, {enqueue, Item}).
 
-dequeue() ->
-    gen_server:call(?MODULE, {dequeue}).
+dequeue(Name) ->
+    gen_server:call(Name, {dequeue}).
 
 
 %% ------------------------------------------------------------------

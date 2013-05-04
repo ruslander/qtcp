@@ -7,14 +7,14 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
          terminate/2, code_change/3]).
 
--record(state, {lsock}).
+-record(state, {lsock, queue}).
 
 start_link(LSock) ->
     gen_server:start_link(?MODULE, [LSock], []).
 
 init([LSock]) ->
-    qtcp_queue:new(),
-    {ok, #state{lsock = LSock}, 0}.
+    Queue = qtcp_queue:new(),
+    {ok, #state{lsock = LSock, queue = Queue}, 0}.
 
 handle_call(Msg, _From, State) ->
     {reply, {ok, Msg}, State}.
@@ -41,25 +41,29 @@ code_change(_OldVsn, State, _Extra) ->
 
 %% Internal functions
 handle_data(Socket, RawData, State) ->
+    
+    SessionId = State#state.queue,
+
     try
 
-        io:format("request ~p ~n", [RawData]),
+        io:format("~p request ~p ~n", [SessionId, RawData]),
 
         Status = case qtcp_protocol:parse_request(RawData) of
             {enqueue, Payload} -> 
-                qtcp_queue:enqueue(Payload),
+                qtcp_queue:enqueue(SessionId, Payload),
                 ok;
             dequeue -> 
-                qtcp_queue:dequeue();
+                qtcp_queue:dequeue(SessionId);
             error -> 
                 bad_request
         end,
         
-        io:format("response ~p ~n", [Status]),
+        io:format("~p response ~p ~n", [SessionId, Status]),
 
         gen_tcp:send(Socket, io_lib:fwrite("~p~n", [Status]))
     catch
-        _Class:Err ->
+        Err ->
+            io:format("~p error ~p ~n", [SessionId, Err]),
             gen_tcp:send(Socket, io_lib:fwrite("ERROR  ~p ~n", [Err]))
     end,
     State.
