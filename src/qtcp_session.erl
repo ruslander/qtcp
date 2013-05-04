@@ -13,6 +13,7 @@ start_link(LSock) ->
     gen_server:start_link(?MODULE, [LSock], []).
 
 init([LSock]) ->
+    qtcp_queue:new(),
     {ok, #state{lsock = LSock}, 0}.
 
 handle_call(Msg, _From, State) ->
@@ -44,11 +45,19 @@ handle_data(Socket, RawData, State) ->
 
         io:format("rqst ~p \n", [RawData]),
 
-        Command = qtcp_protocol:parse_request(RawData),
+        Status = case qtcp_protocol:parse_request(RawData) of
+            {enqueue, Payload} -> 
+                qtcp_queue:enqueue(Payload),
+                ok;
+            dequeue -> 
+                qtcp_queue:dequeue();
+            error -> 
+                bad_request
+        end,
         
-        io:format("rspns ~p \n", [Command]),
+        io:format("rspns ~p \n", [Status]),
 
-        gen_tcp:send(Socket, io_lib:fwrite("OK:~p.~n", [Command]))
+        gen_tcp:send(Socket, io_lib:fwrite("OK:~p.~n", [Status]))
     catch
         _Class:Err ->
             gen_tcp:send(Socket, io_lib:fwrite("ERROR:~p.~n", [Err]))
