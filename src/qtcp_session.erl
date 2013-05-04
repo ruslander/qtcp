@@ -41,11 +41,6 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal functions
 handle_data(Socket, RawData, State) ->
     try
-        %{Function, RawArgList} = lists:splitwith(fun (C) -> C =/= $[ end, RawData),
-        %{ok, Toks, _Line} = erl_scan:string(RawArgList ++ ".", 1),
-        %{ok, Args} = erl_parse:parse_term(Toks),
-        
-        %Result = apply(simple_cache, list_to_atom(Function), Args),
 
         io:format("rqst ~p \n", [RawData]),
 
