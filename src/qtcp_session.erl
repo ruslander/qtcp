@@ -46,8 +46,14 @@ handle_data(Socket, RawData, State) ->
         %{ok, Args} = erl_parse:parse_term(Toks),
         
         %Result = apply(simple_cache, list_to_atom(Function), Args),
+
+        io:format("rqst ~p \n", [RawData]),
+
+        Command = qtcp_protocol:parse_request(RawData),
         
-        gen_tcp:send(Socket, io_lib:fwrite("OK:~p.~n", [RawData]))
+        io:format("rspns ~p \n", [Command]),
+
+        gen_tcp:send(Socket, io_lib:fwrite("OK:~p.~n", [Command]))
     catch
         _Class:Err ->
             gen_tcp:send(Socket, io_lib:fwrite("ERROR:~p.~n", [Err]))

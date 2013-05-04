@@ -4,7 +4,7 @@
 
 parse_request(Request) ->
 
-	Cmd = string:strip(Request),
+	Cmd = trim_whitespace(Request),
 	CmdLen = string:len(Cmd),
 
 	case string:substr(Cmd, 1,3) of
@@ -20,3 +20,6 @@ parse_enqueue_request(Request) ->
 parse_dequeue_request(Request) ->
 	"out" = string:strip(Request),
 	dequeue.
+
+trim_whitespace(A) -> 
+	re:replace(A, "(^\\s+)|(\\s+$)", "", [global,{return,list}]).
