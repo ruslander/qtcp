@@ -43,7 +43,7 @@ code_change(_OldVsn, State, _Extra) ->
 handle_data(Socket, RawData, State) ->
     try
 
-        io:format("rqst ~p \n", [RawData]),
+        io:format("request ~p ~n", [RawData]),
 
         Status = case qtcp_protocol:parse_request(RawData) of
             {enqueue, Payload} -> 
@@ -55,11 +55,11 @@ handle_data(Socket, RawData, State) ->
                 bad_request
         end,
         
-        io:format("rspns ~p \n", [Status]),
+        io:format("response ~p ~n", [Status]),
 
-        gen_tcp:send(Socket, io_lib:fwrite("OK:~p.~n", [Status]))
+        gen_tcp:send(Socket, io_lib:fwrite("~p~n", [Status]))
     catch
         _Class:Err ->
-            gen_tcp:send(Socket, io_lib:fwrite("ERROR:~p.~n", [Err]))
+            gen_tcp:send(Socket, io_lib:fwrite("ERROR  ~p ~n", [Err]))
     end,
     State.

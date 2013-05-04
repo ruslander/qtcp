@@ -57,7 +57,7 @@ handle_cast({inspect}, Queue) ->
 	{noreply, Queue};
 
 handle_cast({enqueue, Item}, Queue) ->
-	io:format("enqueuing ... ~p ~p~n",[Item,Queue]),
+	io:format("enqueuing ~p to ... ~p~n",[Item,Queue]),
 	AppendedQueue = qtcp_queue_coordinator:enqueue(Queue, Item),
 	{noreply, AppendedQueue};
 
