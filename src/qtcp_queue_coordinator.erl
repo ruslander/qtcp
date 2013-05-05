@@ -6,7 +6,7 @@ new() -> {queue, []}.
 
 enqueue({queue, Content}, Item) -> {queue, [Item|Content]}.
 
-dequeue({queue, []}) -> erlang:error("empty queue");
+dequeue({queue, []}) -> {empty_queue, []};
 dequeue({queue, Content}) -> 
 	[Head|Tile] = lists:reverse(Content),
 	{Head, {queue, lists:reverse(Tile)}}.
