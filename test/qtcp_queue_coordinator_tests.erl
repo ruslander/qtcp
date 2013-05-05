@@ -28,4 +28,4 @@ dequeue_3_consecutive_operations_test() ->
   .
 
 dequeue_will_error_on_an_mpty_queue_test() ->
-  ?assertEqual({empty_queue, []}, qtcp_queue_coordinator:dequeue({queue, []})).
+  ?assertEqual({empty_queue, {queue, []}}, qtcp_queue_coordinator:dequeue({queue, []})).

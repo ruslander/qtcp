@@ -40,7 +40,19 @@ two_connections_test() ->
 	?assertEqual("\"two\"\n", R2),
 	?assertEqual("\"three\"\n", R3).
 
+bad_request_test() ->
+	R1 = send("ttt"),
+	?assertEqual("bad_request\n", R1).
 
+empty_queue_test() ->
+	R1 = send("out"),
+	?assertEqual("empty_queue\n", R1).
+
+send(Message) ->
+	{ok, Sock1} = gen_tcp:connect("localhost", 9000, [list, {packet, 0}]),
+ 	R1 = send(Sock1, Message),
+	gen_tcp:close(Sock1),
+	R1.
 
 send(Sock, Message) ->
 	gen_tcp:send(Sock, Message),
